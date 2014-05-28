@@ -44,8 +44,16 @@ class DBworker(object):
 		except:
 			self._connection.rollback()
 
-	def get_all(self, table):
-		self._cursor.execute('SELECT * FROM "{0}"'.format(table),)
+	def get_all(self, table, specifyer=None, relation_table=None):
+		query = 'SELECT * FROM "{}"'.format(table)
+		
+		if specifyer:
+			query = 'SELECT * FROM "{}" WHERE {}_id = {}'.format(table, specifyer['column'], specifyer['id'])
+		if relation_table:
+			query = 'SELECT * FROM "{}" NATURAL JOIN {} WHERE {}_id = {}'.format(table, relation_table,
+																		  specifyer['column'], specifyer['id'])
+
+		self._cursor.execute(query,)
 		fields = [info[0] for info in self._cursor.description]
 
 		return [dict(zip(fields, row)) for row in self._cursor.fetchall()]

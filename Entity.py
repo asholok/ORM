@@ -7,6 +7,9 @@ def get_class_name(cls):
 class Entity(object):
 	_loaded = False
 	_fields 		= []
+	_parents 		= []
+	_children 		= []
+	_siblings 		= []
 	_managed_fields = {}
 	_row_dict 	= {}
 
@@ -72,17 +75,40 @@ class Entity(object):
 		self._db_worker.delete(self._table_name, self._row_id)
 		self._row_id = None
 
+	def _get_parent(self, name):
+		value 	= self._row_dict['{}_id'.format(name)]
+		class_ 	= name.title()
+
+		return globals()[class_](value)
+
+	def _get_siblings(self, name):
+		relation_table = '{0}_{1}_relation'.format(*(sorted([name, self._table_name])))
+		specifyer = {'column': self._table_name, 'id': self._row_id}
+
+		return globals()[name].all(specifyer, relation_table)
+
+	def _get_children(self, name):
+		specifyer = {'column': self._table_name, 'id': self._row_id}
+
+		return globals()[name].all(specifyer)
+
 	def __getattr__(self, name):
 		if self._row_id == None:
 			raise Exception('There is no id maaan!!!')
 		
+		self.load()
 		if name == "id":
 			return self._row_id
 		elif name in self._fields:
-			self.load()
 			field_name = '{}_{}'.format(self._table_name, name)
-
+				
 			return self._row_dict[field_name]
+		elif name in self._parents:
+			return self._get_parent(name)
+		elif name in self._children:
+			return self._get_children(self._children[name])
+		elif name in self._siblings:
+			return self._get_siblings(self._siblings[name])
 		else:
 			raise AttributeError('There is no fields like {}.'.format(name))
 
@@ -104,7 +130,13 @@ class Entity(object):
 		return semple
 
 	@classmethod
-	def all(cls):
+	def all(cls, specifyer=None, relation_table=None):
 		worker = DBworker()
+		values = [cls.__name__.lower()]
 
-		return [cls.enforce_clas(stack) for stack in worker.get_all(cls.__name__.lower())]
+		if specifyer:
+			values.append(specifyer)
+		if relation_table:
+			values.append(relation_table)
+
+		return [cls.enforce_clas(stack) for stack in worker.get_all(*values)]
