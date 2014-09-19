@@ -120,23 +120,18 @@ class Entity(object):
 		object.__setattr__(self, name, value)
 	
 	@classmethod
-	def enforce_clas(cls, stack):
-		semple = cls()
+	def enforce_class(cls, stack):
+		sample = cls()
 
-		semple._loaded = True
-		semple._row_id = stack['{}_id'.format(semple._table_name)]
-		semple._row_dict = stack
+		sample._loaded = True
+		sample._row_id = stack['{}_id'.format(sample._table_name)]
+		sample._row_dict = stack
 
-		return semple
+		return sample
 
 	@classmethod
 	def all(cls, specifyer=None, relation_table=None):
 		worker = DBworker()
-		values = [cls.__name__.lower()]
+		table = [cls.__name__.lower()]
 
-		if specifyer:
-			values.append(specifyer)
-		if relation_table:
-			values.append(relation_table)
-
-		return [cls.enforce_clas(stack) for stack in worker.get_all(*values)]
+		return [cls.enforce_class(stack) for stack in worker.get_all(table, specifyer, relation_table)]
