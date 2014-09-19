@@ -50,7 +50,7 @@ class DBworker(object):
 
 		return [dict(zip(fields, row)) for row in self._cursor.fetchall()]
 	
-	def get_by_order(self, table, column, limit=None, desc=True):
+	def get_by_order(self, table, column, desc=True, limit=None):
 		if limit:
 			if desc:
 				query = 'SELECT * FROM "{}" ORDER BY "{}" DESC LIMIT {}'.format(table, column, limit)
