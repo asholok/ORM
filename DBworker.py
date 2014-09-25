@@ -53,14 +53,14 @@ class DBworker(object):
 	def get_by_order(self, table, column, desc=True, limit=None):
 		if limit:
 			if desc:
-				query = 'SELECT * FROM "{}" ORDER BY "{}" DESC LIMIT {}'.format(table, column, limit)
+				query = 'SELECT * FROM "{}" ORDER BY {} DESC LIMIT {}'.format(table, column, limit)
 			else:
-				query = 'SELECT * FROM "{}" ORDER BY "{}" ASC LIMIT {}'.format(table, column, limit)
+				query = 'SELECT * FROM "{}" ORDER BY {} ASC LIMIT {}'.format(table, column, limit)
 		else:
 			if desc:
-				query = 'SELECT * FROM "{}" ORDER BY "{}" DESC'.format(table, column)
+				query = 'SELECT * FROM "{}" ORDER BY {} DESC'.format(table, column)
 			else:
-				query = 'SELECT * FROM "{}" ORDER BY "{}" ASC'.format(table, column)
+				query = 'SELECT * FROM "{}" ORDER BY {} ASC'.format(table, column)
 		
 		return self.__handle_multiple_result(query)
 

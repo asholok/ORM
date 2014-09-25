@@ -82,15 +82,17 @@ class Entity(object):
 		return globals()[class_](value)
 
 	def _get_siblings(self, name):
+		class_ 	= name.title()
 		relation_table = '{0}_{1}_relation'.format(*(sorted([name, self._table_name])))
 		specifyer = {'column': self._table_name, 'id': self._row_id}
 
-		return globals()[name].all(specifyer, relation_table)
+		return globals()[class_].get_all(specifyer, relation_table)
 
 	def _get_children(self, name):
+		class_ 	= name.title()
 		specifyer = {'column': self._table_name, 'id': self._row_id}
 
-		return globals()[name].all(specifyer)
+		return globals()[class_].get_all(specifyer)
 
 	def __getattr__(self, name):
 		if self._row_id == None:
@@ -130,7 +132,14 @@ class Entity(object):
 		return sample
 
 	@classmethod
-	def all(cls, specifyer=None, relation_table=None):
+	def get_by_order(cls, column, desc=True, lim=None):
+		worker = DBworker()
+		table = [cls.__name__.lower()]
+
+		return [cls.enforce_class(stack) for stack in worker.get_by_order(table, column, desc, lim)]
+
+	@classmethod
+	def get_all(cls, specifyer=None, relation_table=None):
 		worker = DBworker()
 		table = [cls.__name__.lower()]
 
